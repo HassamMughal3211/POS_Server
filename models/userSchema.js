@@ -1,3 +1,4 @@
+const bcrypt = require("bcryptjs/dist/bcrypt");
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
@@ -34,6 +35,13 @@ const userSchema = new mongoose.Schema({
         default: "pos123"
     },
 })
+
+userSchema.pre("save", async function(next){
+    if(this.isModified("password")) return next();
+    var encryptedPassword = await bcrypt.hash(this.password,12);
+    this.password = encryptedPassword;
+})
+
 const User = new mongoose.model("user", userSchema);
 
 module.exports = User;
